@@ -1,0 +1,52 @@
+name: Automated Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+      - fix
+      - master
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Clone the test repository with dummy data
+      - name: Clone test repository
+        run: git clone <test-repository-url> dummy-data
+
+      # Step 5: Copy dummy data to the appropriate location
+      - name: Copy dummy data
+        run: cp -r dummy-data/* tests/dummy-data/
+
+      # Step 6: Run the tests using Jest
+      - name: Run tests
+        run: npm test
+
+      # Step 7: Clean up dummy data after the tests
+      - name: Clean up dummy data
+        run: rm -rf tests/dummy-data
+
+      # Step 8: Publish test results (optional)
+      - name: Publish test results
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results
+          path: ./test-results
